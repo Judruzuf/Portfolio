@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blender & Unity Projects - Rick Wolters</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #34a853;
+            --text-dark: #202124;
+            --text-light: #202124;
+            --bg-light: #f8f9fa;
+            --border-color: #dadce0;
+            --spacing: 1.5rem;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: sans-serif;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1557b0 100%);
+            color: white;
+            padding: 2rem var(--spacing);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: opacity 0.3s ease;
+        }
+
+        header a:hover {
+            opacity: 0.8;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem var(--spacing);
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .project-image {
+            width: 100%;
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gallery-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #bbb;
+        }
+
+        .clickable-image {
+            cursor: pointer;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1557b0 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin: 2rem 0;
+            box-shadow: 0 4px 16px rgba(26, 115, 232, 0.3);
+        }
+
+        .cta-section p {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: white;
+            color: var(--primary-color);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            color: var(--primary-color);
+        }
+
+        .cta-button:active {
+            transform: scale(0.98);
+        }
+
+        ul {
+            margin: 1.5rem 0 1.5rem 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            font-size: 1.05rem;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="../index.html">← Back to Home</a>
+        <h1>3D Design & Interaction</h1>
+    </header>
+
+    <main>
+        <h2>Blender & Unity Projects</h2>
+
+        <p>
+            I have experience working with Blender for 3D modeling and asset creation, as well as Unity for making those interactive experiences.
+        </p>
+
+        <h2>Tools & Skills</h2>
+        <ul>
+            <li><strong>Blender</strong> - 3D modeling, texturing, shading and rendering</li>
+            <li><strong>Unity</strong> - scene management and interactive experiences</li>
+        </ul>
+
+        <h2>Japanese House</h2>
+
+
+        <img src="../images/SO3_RickWolters (2).png" alt="Blender and Unity 3D Project" class="project-image clickable-image" onclick="openModal(this.src)">
+        
+        <div class="image-gallery">
+            <img src="../images/A1_RickWolters_render-2.png" alt="Small House Render 2" class="gallery-image clickable-image" onclick="openModal(this.src)">
+            <img src="../images/A1_RickWolters_render-3.png" alt="Small House Render 3" class="gallery-image clickable-image" onclick="openModal(this.src)">
+            <img src="../images/A1_RickWolters_render-4.png" alt="Small House Render 4" class="gallery-image clickable-image" onclick="openModal(this.src)">
+        </div>
+
+        <div class="cta-section">
+            <p>Experience the interactive small Japanese house with animated doors and dynamic day/night cycle</p>
+            <a href="https://rickwo.itch.io/so4-rickwo" target="_blank" class="cta-button">Explore the Interactive House</a>
+        </div>
+
+        <h2>Leonardo da Vinci Ornithopter</h2>
+        <p>
+            An interactive 3D experience featuring Leonardo da Vinci's ornithopter (airplane) design. Built in Blender and made interactive with Unity.
+        </p>
+        
+        <div class="image-gallery">
+            <img src="../images/snap_20260126_230408.jpg" alt="Ornithopter Detail 1" class="gallery-image clickable-image" onclick="openModal(this.src)">
+            <img src="../images/snap_20260126_225906.jpg" alt="Ornithopter Detail 2" class="gallery-image clickable-image" onclick="openModal(this.src)">
+        </div>
+
+        <div class="cta-section">
+            <p>Try it yourself!</p>
+            <a href="https://rickwo.itch.io/a2davinchirickwo" target="_blank" class="cta-button">Play the Interactive Experience</a>
+        </div>
+
+    </main>
+
+    <div id="imageModal" class="modal" onclick="closeModal(event)">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage" src="" alt="Full screen image">
+    </div>
+
+    <script>
+        function openModal(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modalImg.src = src;
+            modal.classList.add('active');
+        }
+
+        function closeModal(event) {
+            const modal = document.getElementById('imageModal');
+            if (event && event.target !== modal) return;
+            modal.classList.remove('active');
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

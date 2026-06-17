@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rick Wolters Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #34a853;
+            --text-dark: #202124;
+            --text-light: #202124;
+            --bg-light: #f8f9fa;
+            --border-color: #dadce0;
+            --spacing: 1.5rem;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: sans-serif;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1557b0 100%);
+            color: white;
+            padding: 4rem var(--spacing);
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+ 
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem var(--spacing);
+        }
+
+        section {
+            margin-bottom: 4rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        ul {
+            margin: 1.5rem 0 1.5rem 2rem;
+        }
+
+        li {
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            font-size: 1.05rem;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        .projects-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .carousel {
+            flex: 1;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .carousel-inner {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .project-card {
+            flex: 0 0 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 24px rgba(26, 115, 232, 0.2);
+        }
+
+        .project-card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1557b0 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .project-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-card-header h3 {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .project-card-body {
+            padding: 2rem;
+        }
+
+        .project-card-body p {
+            margin: 0 0 1.5rem 0;
+            color: var(--text-light);
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .project-tag {
+            background-color: var(--bg-light);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .carousel-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .carousel-button:hover {
+            background-color: #1557b0;
+            transform: scale(1.1);
+        }
+
+        .carousel-button:active {
+            transform: scale(0.95);
+        }
+
+        .carousel-dots {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .dot.active {
+            background-color: var(--primary-color);
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .project-link {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .project-link:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 24px rgba(26, 115, 232, 0.2);
+        }
+
+        .project-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .project-info {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-info h3 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .project-info p {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        /* CV Section Styles */
+        .cv-tabs {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0 2rem 0;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .cv-tab-button {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-light);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .cv-tab-button:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .cv-tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .cv-content {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .cv-card {
+            background: white;
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .cv-card:hover {
+            box-shadow: 0 8px 16px rgba(26, 115, 232, 0.15);
+            transform: translateX(8px);
+        }
+
+        .cv-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .cv-card h4 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .cv-card .date {
+            font-size: 0.9rem;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .cv-card .subtitle {
+            font-size: 1rem;
+            color: var(--secondary-color);
+            margin: 0.5rem 0 0.5rem 0;
+            font-weight: 500;
+        }
+
+        .cv-card p {
+            margin: 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .skill-item {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1557b0 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .skill-item:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 16px rgba(26, 115, 232, 0.35);
+        }
+
+        .skill-item:hover::before {
+            left: 100%;
+        }
+
+        .skill-item {
+            cursor: pointer;
+        }
+
+        .skill-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            max-width: 400px;
+            width: 90%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .skill-popup.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .skill-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .skill-popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .skill-popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 1rem;
+        }
+
+        .skill-popup h3 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .skill-popup-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s ease;
+        }
+
+        .skill-popup-close:hover {
+            color: var(--primary-color);
+        }
+
+        .skill-popup p {
+            margin: 0;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .cv-card-link {
+            cursor: pointer;
+        }
+
+        .about-container {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .about-text {
+            flex: 1;
+        }
+
+        .about-images {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-carousel {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .carousel-images {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            width: 100%;
+        }
+
+        .about-image {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(26, 115, 232, 0.15);
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(26, 115, 232, 0.8);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease, transform 0.2s ease;
+            z-index: 10;
+        }
+
+        .carousel-nav:hover {
+            background: rgba(26, 115, 232, 1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-prev {
+            left: 1rem;
+        }
+
+        .carousel-next {
+            right: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .about-container {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .about-images {
+                flex: 1;
+            }
+
+            .about-image {
+                height: 300px;
+            }
+
+            .carousel-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .carousel-prev {
+                left: 0.5rem;
+            }
+
+            .carousel-next {
+                right: 0.5rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        section.reveal {
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .curtain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000;
+            pointer-events: none;
+            display: flex;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease;
+        }
+
+        .curtain.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .curtain-left {
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1557b0 100%);
+            transform: translateX(0);
+            transition: transform 0.8s ease-in-out;
+        }
+
+        .curtain-right {
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(135deg, #1557b0 0%, var(--primary-color) 100%);
+            transform: translateX(0);
+            transition: transform 0.8s ease-in-out;
+        }
+
+        .curtain.open .curtain-left {
+            transform: translateX(-100%);
+        }
+
+        .curtain.open .curtain-right {
+            transform: translateX(100%);
+        }
+
+        .curtain-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 600;
+            color: black;
+            opacity: 1;
+            z-index: 2001;
+            white-space: nowrap;
+            transition: opacity 5s ease-in-out;
+        }
+
+        .curtain.open .curtain-text {
+            opacity: 0;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            .contact-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .projects-container {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .carousel-button {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .project-card-header {
+                min-height: 100px;
+                padding: 1.5rem;
+            }
+
+            .project-card-header h3 {
+                font-size: 1.3rem;
+            }
+
+            .project-icon {
+                font-size: 2.5rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .cv-tabs {
+                flex-direction: column;
+                border-bottom: none;
+                gap: 0.5rem;
+            }
+
+            .cv-tab-button {
+                width: 100%;
+                text-align: left;
+                border-bottom: none;
+                border-left: 3px solid transparent;
+                padding: 0.75rem 1rem;
+                border-radius: 4px;
+                background-color: var(--bg-light);
+            }
+
+            .cv-tab-button.active {
+                border-left-color: var(--primary-color);
+                background-color: rgba(26, 115, 232, 0.1);
+            }
+
+            .skills-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .cv-card-header {
+                flex-direction: column;
+            }
+
+            .cv-card {
+                border-left-width: 3px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Rick Wolters</h1>
+        <p>Creative Technology Student</p>
+    </header>
+
+    <main>
+        <section id="about">
+            <h2>About Me</h2>
+            <div class="about-container">
+                <div class="about-text">
+                    <p>
+                        Hello! I'm Rick, a ambitious student pursuing a Bachelor in Creative Technology at the University of Twente. With experience in door-to-door sales, handyman work, and warehouse operations, I've developed strong communication skills, a practical mindset, and solid work ethic.
+                    </p>
+                    <p>
+                        I adapt quickly to new challenges, enjoy learning new skills, and like working both independently and collaboratively.
+                    </p>
+                </div>
+                <div class="about-images">
+                    <div class="image-carousel">
+                        <div class="carousel-images" id="carouselImages">
+                            <img src="images/Me1.jpeg" alt="Rick Wolters" class="about-image">
+                            <img src="images/Me2.jpeg" alt="Rick Wolters" class="about-image">
+                            <img src="images/Me3.jpeg" alt="Rick Wolters" class="about-image">
+                            <img src="images/Me4.jpeg" alt="Rick Wolters" class="about-image">
+                        </div>
+                        <button class="carousel-nav carousel-prev" id="prevBtn">❮</button>
+                        <button class="carousel-nav carousel-next" id="nextBtn">❯</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects">
+            <h2>My Projects</h2>
+            <p>Here are some of the projects I've worked on:</p>
+            <div class="projects-grid">
+                <a href="projects/portfolio.html" class="project-link">
+                    <img src="images/Screenshot 2026-06-08 101952.png" alt="Portfolio Website Project" class="project-thumbnail">
+                    <div class="project-info">
+                        <h3>Portfolio Website</h3>
+                        <p>This website! A portfolio website built with HTML and CSS.</p>
+                    </div>
+                </a>
+                <a href="projects/music-video.html" class="project-link">
+                    <img src="images/music-video-thumbnail.png" alt="Music Video Project" class="project-thumbnail">
+                    <div class="project-info">
+                        <h3>Music Video</h3>
+                        <p>A music video created for an original song.</p>
+                    </div>
+                </a>
+                <a href="projects/blender-unity.html" class="project-link">
+                    <img src="images/A1_RickWolters_render-1.png" alt="Blender & Unity 3D Projects" class="project-thumbnail">
+                    <div class="project-info">
+                        <h3>3D Design & Interaction</h3>
+                        <p>Blender and Unity projects showcasing 3D modeling and interactive design skills.</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section id="cv">
+            <h2>CV & Experience</h2>
+            <div class="cv-tabs">
+                <button class="cv-tab-button active" data-tab="experience">Experience</button>
+                <button class="cv-tab-button" data-tab="skills">Skills</button>
+                <button class="cv-tab-button" data-tab="education">Education</button>
+                <button class="cv-tab-button" data-tab="cv-image">CV Document</button>
+            </div>
+
+            <div class="cv-content" id="experience">
+                <div class="cv-card cv-card-link" data-link="https://direct-result.nl/" target="_blank">
+                    <div class="cv-card-header">
+                        <div>
+                            <h4>Door-to-Door Sales</h4>
+                            <p class="subtitle">Direct Result Enschede</p>
+                        </div>
+                        <span class="date">2025</span>
+                    </div>
+                    <p>Developed strong communication skills through direct customer engagement, developing strong communication and persuasion skills.</p>
+                </div>
+                <div class="cv-card cv-card-link" data-link="https://www.loonbedrijfpelle.nl/werkzaamheden" target="_blank">
+                    <div class="cv-card-header">
+                        <div>
+                            <h4>Handyman Work</h4>
+                            <p class="subtitle">Loonbedrijf Pelle BV</p>
+                        </div>
+                        <span class="date">2024</span>
+                    </div>
+                    <p>Performed maintenance and repair tasks, developing practical problem-solving skills.</p>
+                </div>
+                <div class="cv-card cv-card-link" data-link="https://www.bollux.nl" target="_blank">
+                    <div class="cv-card-header">
+                        <div>
+                            <h4>Warehouse Operations</h4>
+                            <p class="subtitle">Bollux</p>
+                        </div>
+                        <span class="date">2023</span>
+                    </div>
+                    <p>Assisted with inventory management, order processing, and warehouse operations.</p>
+                </div>
+            </div>
+
+            <div class="cv-content" id="skills" style="display: none;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Technical Skills</h3>
+                <div class="skills-grid">
+                    <div class="skill-item" data-skill-title="HTML & CSS" data-skill-desc="The basic skills to make simple websites like this one.">HTML & CSS</div>
+                    <div class="skill-item" data-skill-title="JavaScript" data-skill-desc="Basic knowledge of JavaScript for creating interactive web experiences.">JavaScript</div>
+                    <div class="skill-item" data-skill-title="Blender 3D" data-skill-desc="Design and model 3D assets and texturing said models.">Blender 3D</div>
+                    <div class="skill-item" data-skill-title="Autodesk Fusion 360" data-skill-desc="Create and prototype 3D CAD designs for various projects.">Autodesk Fusion 360</div>
+                    <div class="skill-item" data-skill-title="Unity" data-skill-desc="Develop interactive experiences using the Unity game engine and scripting in C#.">Unity</div>
+                    <div class="skill-item" data-skill-title="Processing" data-skill-desc="Creating all sorts of interactive visualizations and other creative applications.">Processing</div>
+                    <div class="skill-item" data-skill-title="Video Editing" data-skill-desc="Editing and producing engaging video content with storytelling.">Video Editing</div>
+                    <div class="skill-item" data-skill-title="Videography" data-skill-desc="Professional video filming paying attention to lighting, and composition.">Videography</div>
+                </div>
+                <h3 style="color: var(--primary-color); margin: 2rem 0 1rem 0;">Soft Skills</h3>
+                <div class="skills-grid">
+                    <div class="skill-item" data-skill-title="Problem Solving" data-skill-desc="Analyze challenges and develop practical, effective solutions.">Problem Solving</div>
+                    <div class="skill-item" data-skill-title="Communication" data-skill-desc="Convey ideas clearly and collaborate effectively with diverse nationalities and personalities.">Communication</div>
+                    <div class="skill-item" data-skill-title="Teamwork" data-skill-desc="Work productively with others to achieve shared goals and deliver results.">Teamwork</div>
+                    <div class="skill-item" data-skill-title="Adaptability" data-skill-desc="Adapt to new situations and learn new skills quickly.">Adaptability</div>
+                </div>
+            </div>
+
+            <div class="cv-content" id="education" style="display: none;">
+                <div class="cv-card cv-card-link" data-link="https://www.utwente.nl/en/create/" target="_blank">
+                    <div class="cv-card-header">
+                        <div>
+                            <h4>Bachelor in Creative Technology</h4>
+                            <p class="subtitle">University of Twente</p>
+                        </div>
+                        <span class="date">2025-Present</span>
+                    </div>
+                </div>
+                <div class="cv-card cv-card-link" data-link="https://www.bataafslyceum.nl" target="_blank">
+                    <div class="cv-card-header">
+                        <div>
+                            <h4>VWO Atheneum E&M</h4>
+                            <p class="subtitle">Bataafs Lyceum</p>
+                        </div>
+                        <span class="date">2019-2025</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cv-content" id="cv-image" style="display: none;">
+                <div style="text-align: center;">
+                    <img src="images/CV.png" alt="CV Document" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);">
+                </div>
+            </div>
+
+        </section>
+
+        <section id="contact">
+            <h2>Contact Me</h2>
+            <div class="contact-links">
+                <div class="contact-link">
+                    <span>📧</span>
+                    <a href="mailto:rick.wolters.07@gmail.com">rick.wolters.07@gmail.com</a>
+                </div>
+                <div class="contact-link">
+                    <span>💼</span>
+                    <a href="https://www.linkedin.com/in/rick-wolters-575787385" target="_blank">linkedin.com/in/rick-wolters</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="curtain" id="curtain">
+        <div class="curtain-left"></div>
+        <div class="curtain-right"></div>
+        <div class="curtain-text">you're already here</div>
+    </div>
+
+    <div class="skill-popup-overlay" id="skillPopupOverlay"></div>
+    <div class="skill-popup" id="skillPopup">
+        <div class="skill-popup-header">
+            <h3 id="skillPopupTitle"></h3>
+            <button class="skill-popup-close" id="skillPopupClose">&times;</button>
+        </div>
+        <p id="skillPopupDesc"></p>
+    </div>
+
+    <script>
+        // Add curtain reveal effect to Portfolio Website card
+        document.addEventListener('DOMContentLoaded', function() {
+            const portfolioLink = document.querySelector('a[href="projects/portfolio.html"]');
+            if (portfolioLink) {
+                portfolioLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const curtain = document.getElementById('curtain');
+                    curtain.classList.add('open');
+                    
+                    // Close curtain after animation
+                    setTimeout(() => {
+                        curtain.classList.remove('open');
+                    }, 1600);
+                });
+            }
+
+            // CV Card Links - Make them clickable
+            document.querySelectorAll('.cv-card-link').forEach(card => {
+                card.addEventListener('click', function() {
+                    const link = this.getAttribute('data-link');
+                    if (link) {
+                        window.open(link, '_blank');
+                    }
+                });
+            });
+
+            // Image Carousel functionality
+            const carouselImages = document.getElementById('carouselImages');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const totalImages = 4;
+            let currentImageIndex = 0;
+
+            function updateCarousel() {
+                const offset = -currentImageIndex * 100;
+                carouselImages.style.transform = `translateX(${offset}%)`;
+            }
+
+            function nextImage() {
+                currentImageIndex = (currentImageIndex + 1) % totalImages;
+                updateCarousel();
+            }
+
+            function prevImage() {
+                currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages;
+                updateCarousel();
+            }
+
+            nextBtn.addEventListener('click', nextImage);
+            prevBtn.addEventListener('click', prevImage);
+
+            // Skill Popup functionality
+            const skillPopup = document.getElementById('skillPopup');
+            const skillPopupOverlay = document.getElementById('skillPopupOverlay');
+            const skillPopupClose = document.getElementById('skillPopupClose');
+            const skillPopupTitle = document.getElementById('skillPopupTitle');
+            const skillPopupDesc = document.getElementById('skillPopupDesc');
+
+            document.querySelectorAll('.skill-item').forEach(skill => {
+                skill.addEventListener('click', function() {
+                    const title = this.getAttribute('data-skill-title');
+                    const desc = this.getAttribute('data-skill-desc');
+                    
+                    skillPopupTitle.textContent = title;
+                    skillPopupDesc.textContent = desc;
+                    
+                    skillPopup.classList.add('active');
+                    skillPopupOverlay.classList.add('active');
+                });
+            });
+
+            // Close popup function
+            function closeSkillPopup() {
+                skillPopup.classList.remove('active');
+                skillPopupOverlay.classList.remove('active');
+            }
+
+            skillPopupClose.addEventListener('click', closeSkillPopup);
+            skillPopupOverlay.addEventListener('click', closeSkillPopup);
+
+            // Close popup on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeSkillPopup();
+                }
+            });
+
+            // CV Tab functionality
+            const tabButtons = document.querySelectorAll('.cv-tab-button');
+            const contentDivs = document.querySelectorAll('[id="experience"], [id="skills"], [id="education"], [id="cv-image"]');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Hide all content divs
+                    contentDivs.forEach(div => div.style.display = 'none');
+                    // Show selected content div
+                    document.getElementById(tabName).style.display = 'block';
+                });
+            });
+
+            // Scroll reveal animation for sections
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('section').forEach(section => {
+                observer.observe(section);
+            });
+
+            // Add smooth parallax effect on scroll
+            window.addEventListener('scroll', function() {
+                const header = document.querySelector('header');
+                const scrolled = window.pageYOffset;
+                header.style.transform = `translateY(${scrolled * 0.5}px)`;
+            });
+        });
+    </script>
+
+</body>
+
+</html>
