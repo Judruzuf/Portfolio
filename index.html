@@ -775,6 +775,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="theme.css">
 </head>
 
 <body>
@@ -789,7 +790,7 @@
             <div class="about-container">
                 <div class="about-text">
                     <p>
-                        Hello! I'm Rick, a ambitious student pursuing a Bachelor in Creative Technology at the University of Twente. With experience in door-to-door sales, handyman work, and warehouse operations, I've developed strong communication skills, a practical mindset, and solid work ethic.
+                        Hello! I'm Rick, an ambitious student pursuing a Bachelor in Creative Technology at the University of Twente. With experience in door-to-door sales, handyman work, and warehouse operations, I've developed strong communication skills, a practical mindset, and solid work ethic.
                     </p>
                     <p>
                         I adapt quickly to new challenges, enjoy learning new skills, and like working both independently and collaboratively.
@@ -833,6 +834,13 @@
                     <div class="project-info">
                         <h3>3D Design & Interaction</h3>
                         <p>Blender and Unity projects showcasing 3D modeling and interactive design skills.</p>
+                    </div>
+                </a>
+                <a href="projects/games.html" class="project-link">
+                    <img src="images/games-thumbnail.png" alt="Games Project" class="project-thumbnail">
+                    <div class="project-info">
+                        <h3>Games</h3>
+                        <p>Conway's Game of Life, Minesweeper, Pong and Snake, playable right in the browser.</p>
                     </div>
                 </a>
             </div>
@@ -1086,16 +1094,10 @@
             document.querySelectorAll('section').forEach(section => {
                 observer.observe(section);
             });
-
-            // Add smooth parallax effect on scroll
-            window.addEventListener('scroll', function() {
-                const header = document.querySelector('header');
-                const scrolled = window.pageYOffset;
-                header.style.transform = `translateY(${scrolled * 0.5}px)`;
-            });
         });
     </script>
 
+    <script src="conways-game-of-life.js"></script>
 </body>
 
 </html>

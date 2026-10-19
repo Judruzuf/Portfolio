@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,800&display=swap');
+:root{--primary-color:#2b45e8;--secondary-color:#e8452b;--text-dark:#0f1537;--text-light:#0f1537;--bg-light:#e4e8f6;--border-color:#0f1537;--ink:#0f1537;--cell:#ffd23f}
+body{font-family:'Bricolage Grotesque',system-ui,sans-serif;color:var(--ink);background-color:#f1f3f9;background-image:linear-gradient(var(--bg-light) 1px,transparent 1px),linear-gradient(90deg,var(--bg-light) 1px,transparent 1px);background-size:24px 24px}
+header{position:relative;overflow:hidden;background:var(--primary-color);box-shadow:none;border-bottom:4px solid var(--ink)}
+header>*:not(.conways-life){position:relative;z-index:1}
+.conways-life{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+header h1{font-weight:800;letter-spacing:-.03em}
+header:not(:has(a)) h1{font-size:clamp(3rem,9vw,5.5rem);line-height:.95}
+h2{color:var(--ink);font-weight:800;letter-spacing:-.02em}
+h2::before{content:'';display:inline-block;width:.4em;height:.4em;margin-right:.5rem;background:var(--cell);border:3px solid var(--ink)}
+.project-link,.project-card,.cv-card,.skill-popup,.project-image,.gallery-image,.video-container{border:3px solid var(--ink);border-radius:6px;box-shadow:6px 6px 0 var(--ink)}
+.project-link:hover,.project-card:hover{transform:translate(-4px,-4px);box-shadow:10px 10px 0 var(--ink)}
+.cv-card:hover{box-shadow:10px 10px 0 var(--ink)}
+.project-info h3,.cv-card h4{color:var(--ink)}
+.project-card-header,.carousel-button,.carousel-nav{background:var(--primary-color)}
+.carousel-button,.carousel-nav{border-radius:4px;border:3px solid var(--ink)}
+.skill-item{background:var(--ink);border:3px solid var(--ink);border-radius:4px;box-shadow:4px 4px 0 var(--cell)}
+.skill-item:hover{box-shadow:4px 4px 0 var(--secondary-color)}
+.cta-section{background:var(--ink);border:3px solid var(--ink);border-radius:6px;box-shadow:6px 6px 0 var(--cell)}
+.cta-button{background:var(--cell);color:var(--ink);border:3px solid var(--ink);border-radius:4px;box-shadow:none}
+.cta-button:hover{color:var(--ink);text-decoration:none}
+.cv-tab-button.active,.dot.active{color:var(--ink);border-bottom-color:var(--secondary-color);background-color:transparent}
+:focus-visible{outline:3px solid var(--secondary-color);outline-offset:3px}
+.image-carousel{border:3px solid var(--ink);border-radius:6px;box-shadow:6px 6px 0 var(--ink)}
+.about-image{border:0;border-radius:0;box-shadow:none}
+.about-container{padding-right:6px}

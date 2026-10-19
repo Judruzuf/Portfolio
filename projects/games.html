@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Games - Rick Wolters</title>
+<link rel="stylesheet" href="../theme.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:sans-serif}
+header{color:white;padding:2rem 1.5rem;display:flex;align-items:center;gap:1rem}
+header a{color:white;text-decoration:none;font-size:1.2rem;transition:opacity .3s ease}
+header a:hover{opacity:.8;text-decoration:none;color:white}
+header h1{font-size:2rem;font-weight:600;flex:1}
+main{max-width:900px;margin:0 auto;padding:3rem 1.5rem}
+h2{font-size:2rem;margin-bottom:1rem}
+p{font-size:1.05rem;line-height:1.7;margin-bottom:1rem}
+.row{display:flex;flex-wrap:wrap;gap:.7rem;margin:1.25rem 0}
+.b{font:inherit;font-weight:800;padding:.55rem 1.1rem;border:3px solid var(--ink);background:#fff;color:var(--ink);border-radius:4px;cursor:pointer;box-shadow:4px 4px 0 var(--ink)}
+.b:active,.b[aria-pressed=true]{background:var(--cell);transform:translate(4px,4px);box-shadow:none}
+.b[hidden]{display:none}
+.stage{display:grid;grid-template-columns:minmax(0,520px) 1fr;gap:2rem;align-items:start}
+#cv{width:100%;aspect-ratio:1;display:block;background:#fff;border:3px solid var(--ink);border-radius:6px;box-shadow:6px 6px 0 var(--ink);touch-action:none}
+#stat{font-weight:800;font-size:1.3rem;margin-bottom:.75rem}
+label{display:block;font-weight:800;margin-top:1rem}
+input[type=range]{width:100%;accent-color:var(--primary-color)}
+@media(max-width:768px){.stage{grid-template-columns:1fr}header{flex-direction:column;text-align:center}header h1{font-size:1.5rem}main{padding:2rem 1rem}}
+</style>
+</head>
+<body>
+<header><a href="../index.html">← Back to Home</a><h1>Games</h1></header>
+<main>
+<h2>Games</h2>
+<div class="row" id="tabs">
+<button class="b" data-g="life">Game of Life</button>
+<button class="b" data-g="mines">Minesweeper</button>
+<button class="b" data-g="pong">Pong</button>
+<button class="b" data-g="snake">Snake</button>
+</div>
+<div class="stage">
+<canvas id="cv" width="480" height="480" aria-label="Game board"></canvas>
+<div>
+<div id="stat"></div>
+<p id="desc"></p>
+<div class="row">
+<button class="b" id="play" data-m="life pong snake">Play</button>
+<button class="b" id="step" data-m="life">Step</button>
+<button class="b" id="flag" data-m="mines" aria-pressed="false">Flag mode</button>
+<button class="b" id="rand" data-m="life">Randomize</button>
+<button class="b" id="gun" data-m="life">Glider gun</button>
+<button class="b" id="reset" data-m="life mines pong snake">Reset</button>
+</div>
+<div data-m="life snake"><label for="speed">Delay between steps (ms)</label>
+<input type="range" id="speed" min="20" max="400"></div>
+</div>
+</div>
+</main>
+<script>
+const $ = s => document.querySelector(s);                  // shortcut makes it faster to type everything
+const cv = $('#cv'), g = cv.getContext('2d');              // the game board and its drawing tool
+const INK = '#0f1537', BLUE = '#2b45e8', RED = '#e8452b', GOLD = '#ffd23f';  // colors
+const N = 60;                                              // game of life board is N x N cells
+let run = false;                                           // is the game running or paused
+let cur;                                                   // the active game object (life, mines, pong, snake)
+let delay = 120;                                           // milliseconds between ticks
+const held = {};                                           // keys currently held / down used by Pong
+
+// Mouse position to grid cell
+const at = (e, n) => {
+  const r = cv.getBoundingClientRect();                    // where the canvas is on screen
+  const cell = v => Math.min(n - 1, Math.max(0, v | 0));   // whole number kept inside the grid
+  return [cell((e.clientX - r.left) / r.width * n), cell((e.clientY - r.top) / r.height * n)];
+};
+
+function paint(a, col) {                                   // draws a flat grid array / used by Life
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 480, 480);        // white background
+  const c = 480 / N;                                       // size of one cell in pixels
+  g.fillStyle = col;
+  for (let i = 0; i < a.length; i++)
+    if (a[i]) g.fillRect(i % N * c + 1, (i / N | 0) * c + 1, c - 1, c - 1);  // for drawing the pixels for game of life 
+}
+
+function setRun(v) { run = v; $('#play').textContent = v ? 'Pause' : 'Play'; }  // pause/resume  and button label
+function start() { if (cur.over) cur.reset(); setRun(true); }                  // restart a finished game then run
+
+//  GAME OF LIFE 
+const life = {
+  name: 'life', delay: 120,
+  a: new Uint8Array(N * N),                                // the board 0 = dead / 1 = alive 
+  gen: 0,                                                  // generation counter
+  desc: 'A cell survives with 2 or 3 neighbours, and an empty cell is born with exactly 3. Draw on the board, then press Play. The edges wrap around.',
+  reset() { this.a.fill(0); this.gen = 0; },               // clear the board
+  rand() { this.a = this.a.map(() => +(Math.random() < .25)); this.gen = 0; },  // fill 25% with random live cells
+  gun() {                                                  // glider gun preset
+    this.reset();
+    const rows = '........................O...........|......................O.O...........|............OO......OO............OO|...........O...O....OO............OO|OO........O.....O...OO..............|OO........O...O.OO....O.O...........|..........O.....O.......O...........|...........O...O....................|............OO......................'.split('|'); // glider gun patern
+    rows.forEach((s, y) => [...s].forEach((ch, x) => { if (ch == 'O') this.a[(y + 10) * N + x + 5] = 1; }));  // O = live cell
+  },
+  step() {
+    const a = this.a, b = new Uint8Array(N * N);           // b = next generation kept separate so updates dont interfere
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      let k = 0;                                           // k = live neighbours
+      for (let j = -1; j < 2; j++) for (let i = -1; i < 2; i++)
+        if (i || j) k += a[(y + j + N) % N * N + (x + i + N) % N];  // skip itself +N and % N wrap around the edges
+      const p = y * N + x;
+      b[p] = k == 3 || (a[p] && k == 2) ? 1 : 0;           // 3 neighbours = alive 2 = keep state otherwise dead
+    }
+    this.a = b; this.gen++;                                // swap in the new generation
+  },
+  draw() {
+    paint(this.a, BLUE);
+    $('#stat').textContent = `Generation ${this.gen}, ${this.a.reduce((s, v) => s + v, 0)} alive`;  // sum of 1s = population
+  },
+  down(e) {                                                // mouse pressed
+    const [x, y] = at(e, N);
+    this.set = this.a[y * N + x] ? 0 : 1;                  // started on a live cell = erase on a dead cell = draw
+    this.pen = true; this.move(e);
+  },
+  move(e) {
+    if (!this.pen) return;                                 // only draw while the mouse is held down
+    const [x, y] = at(e, N);
+    this.a[y * N + x] = this.set; this.draw();
+  },
+  up() { this.pen = false; }                               // mouse released
+};
+
+// MINESWEEPER 
+const R = 12, C = 40, MINES = 20;                          // 12x12 board, 40px squares, 20 mines
+const NUM = ['', BLUE, '#1e8e3e', RED, '#6a1b9a', '#b06000', '#00838f', INK, INK];  // colour per number
+const mines = {
+  name: 'mines', delay: 100,
+  desc: 'Click to reveal a square. A number shows how many mines touch it. Right click, or turn on Flag mode on a touch screen, to mark a mine. Your first click is always safe.',
+  reset() {
+    const n = R * R;
+    this.m = new Uint8Array(n);                            // m = mines
+    this.n = new Uint8Array(n);                            // n = number of mines nearby
+    this.o = new Uint8Array(n);                            // o = opened squares
+    this.f = new Uint8Array(n);                            // f = flagged squares
+    this.state = 0;                                        // 0 ready, 1 playing, 2 won, 3 lost
+    this.flagMode = false; $('#flag').setAttribute('aria-pressed', 'false');
+  },
+  nb(p) {                                                  // list the neighbours of square p
+    const x = p % R, y = p / R | 0, l = [];
+    for (let j = -1; j < 2; j++) for (let i = -1; i < 2; i++) {
+      const a = x + i, b = y + j;
+      if ((i || j) && a >= 0 && b >= 0 && a < R && b < R) l.push(b * R + a);  // skip itself and anything off the board
+    }
+    return l;
+  },
+  place(first) {                                           // mines are placed after the first click
+    const safe = [first, ...this.nb(first)];               // the clicked square and its neighbours stay minefree
+    let k = 0;
+    while (k < MINES) {
+      const p = Math.random() * R * R | 0;                 // pick a random square
+      if (this.m[p] || safe.includes(p)) continue;         // already a mine or in the safe zone try again
+      this.m[p] = 1; k++;
+    }
+    for (let p = 0; p < R * R; p++) this.n[p] = this.nb(p).reduce((t, q) => t + this.m[q], 0);  // count mines around each square
+  },
+  open(i) {
+    if (this.m[i]) { this.o[i] = 1; this.state = 3; return; }  // clicked a mine lost
+    const st = [i];                                        // todo list of squares to open
+    while (st.length) {
+      const p = st.pop();
+      if (this.o[p] || this.f[p]) continue;                // skip squares already opened or flagged
+      this.o[p] = 1;
+      if (!this.n[p]) st.push(...this.nb(p));              // 0 mines nearby show all neighbours 
+    }
+    if (this.o.reduce((t, v) => t + v, 0) == R * R - MINES) this.state = 2;  // every safe square opened= won
+  },
+  down(e) {
+    if (this.state > 1) { this.reset(); return; }          // game over a click starts a new game
+    const [x, y] = at(e, R), i = y * R + x;
+    if (e.button == 2 || this.flagMode) { if (!this.o[i]) this.f[i] ^= 1; }  // right click or Flag mode 
+    else if (!this.f[i] && !this.o[i]) {
+      if (!this.state) { this.place(i); this.state = 1; }  // first click place mines now so it is always safe
+      this.open(i);
+    }
+    this.draw();
+  },
+  draw() {
+    g.fillStyle = '#fff'; g.fillRect(0, 0, 480, 480);
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '800 22px "Bricolage Grotesque",system-ui,sans-serif';
+    for (let i = 0; i < R * R; i++) {
+      const x = i % R * C, y = (i / R | 0) * C;            // pixel position of square i
+      if (this.o[i] || (this.state == 3 && this.m[i] && !this.f[i])) {  // opened or a mine revealed after losing
+        g.fillStyle = '#e4e8f6'; g.fillRect(x + 1, y + 1, C - 2, C - 2);
+        if (this.m[i]) { g.fillStyle = RED; g.fillRect(x + 10, y + 10, C - 20, C - 20); }             // mine
+        else if (this.n[i]) { g.fillStyle = NUM[this.n[i]]; g.fillText(this.n[i], x + C / 2, y + C / 2 + 1); }  // number
+      } else {                                             // still covered
+        g.fillStyle = BLUE; g.fillRect(x + 1, y + 1, C - 2, C - 2);
+        if (this.f[i]) {                                   // flag = pole + triangle
+          g.fillStyle = GOLD; g.fillRect(x + 14, y + 9, 3, 22);
+          g.beginPath(); g.moveTo(x + 17, y + 9); g.lineTo(x + 30, y + 16); g.lineTo(x + 17, y + 23); g.fill();
+        }
+      }
+    }
+    const left = MINES - this.f.reduce((t, v) => t + v, 0);  // mines minus flags placed
+    $('#stat').textContent = this.state == 2 ? 'Board cleared. Click to play again.' : this.state == 3 ? 'Boom. Click to play again.' : `Mines left: ${left}`;
+  }
+};
+$('#flag').onclick = () => { mines.flagMode = !mines.flagMode; $('#flag').setAttribute('aria-pressed', mines.flagMode); };  // Flag mode button
+
+// PONG 
+const pong = {
+  name: 'pong', delay: 16,                                 // 16 ms per tick = about 60 frames per second
+  desc: 'First to 3 wins. Move the mouse or your finger over the board, or use W/S or the arrow keys. The ball speeds up with every hit. Click the board to start.',
+  reset() { this.p = 200; this.c = 200; this.ps = 0; this.cs = 0; this.over = false; this.serve(1); },  // p/c = player/CPU paddle y, ps/cs = scores
+  serve(dir) {                                             // 1 = toward the CPU -1 = toward the player
+    const a = (Math.random() - .5) * .8;                   // random launch angle
+    this.x = 240; this.y = 240; this.sp = 5;               // centre of the board start speed 5
+    this.vx = dir * 5 * Math.cos(a); this.vy = 5 * Math.sin(a);  // cos/sin split the speed into horizontal and vertical
+    this.wait = 40;                                        // pause 40 ticks before the ball moves
+  },
+  move(e) {                                                // mouse or finger controls the paddle
+    const r = cv.getBoundingClientRect();
+    this.p = Math.max(0, Math.min(400, (e.clientY - r.top) / r.height * 480 - 40));  // centre the paddle on the pointer
+  },
+  down(e) { this.move(e); if (!run) start(); },            // clicking the board starts the game
+  hit(pad, dir) {                                          // ball hit a paddle at height pad
+    const rel = (this.y - pad - 40) / 45;                  // where on the paddle, -1 (top) to +1 (bottom)
+    this.sp = Math.min(11, this.sp * 1.06);                // 6% faster per hit max 11
+    this.vx = dir * this.sp * Math.cos(rel * .9);          // edge hits give a steeper angle
+    this.vy = this.sp * Math.sin(rel * .9);
+  },
+  step() {
+    const cl = v => Math.max(0, Math.min(400, v));         // keeps a paddle on the board
+    if (held.ArrowUp || held.w) this.p -= 7;               // keyboard movement
+    if (held.ArrowDown || held.s) this.p += 7;
+    this.p = cl(this.p);
+    this.c = cl(this.c + Math.max(-3.6, Math.min(3.6, this.y - 40 - this.c)));  // CPU follows the ball max 3.6 px per frame
+    if (this.wait > 0) { this.wait--; return; }            // still waiting to serve
+    this.x += this.vx; this.y += this.vy;                  // move the ball
+    if (this.y < 5 || this.y > 475) { this.vy = -this.vy; this.y = Math.max(5, Math.min(475, this.y)); }  // bounce off top and bottom
+    if (this.vx < 0 && this.x - 5 <= 30 && this.x - 5 >= 14 && this.y >= this.p - 5 && this.y <= this.p + 85) { this.x = 36; this.hit(this.p, 1); }    // player paddle only when the ball moves left
+    if (this.vx > 0 && this.x + 5 >= 450 && this.x + 5 <= 466 && this.y >= this.c - 5 && this.y <= this.c + 85) { this.x = 444; this.hit(this.c, -1); }  // CPU paddle only when the ball moves right
+    if (this.x < -10) { this.cs++; this.serve(-1); }       // ball passed the player CPU scores
+    else if (this.x > 490) { this.ps++; this.serve(1); }   // ball passed the CPU player scores
+    if (this.ps == 3 || this.cs == 3) { this.over = true; setRun(false); }  // first to 3 wins
+  },
+  draw() {
+    g.fillStyle = '#fff'; g.fillRect(0, 0, 480, 480);
+    g.fillStyle = '#e4e8f6';
+    for (let y = 0; y < 480; y += 30) g.fillRect(238, y, 4, 16);  // dashed centre line
+    g.font = '800 56px "Bricolage Grotesque",system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(this.ps, 190, 50); g.fillText(this.cs, 290, 50);   // scores
+    g.fillStyle = BLUE; g.fillRect(20, this.p, 10, 80);    // player paddle
+    g.fillStyle = INK; g.fillRect(450, this.c, 10, 80);    // CPU paddle
+    g.fillStyle = RED; g.fillRect(this.x - 5, this.y - 5, 10, 10);  // ball
+    $('#stat').textContent = this.over ? (this.ps > this.cs ? 'You win. Press Play for a rematch.' : 'CPU wins. ur bad.') : `You ${this.ps}, CPU ${this.cs}`;
+  }
+};
+
+// SNAKE 
+const M = 20, K = 24;                                      // 20x20 board, 24px squares
+const snake = {
+  name: 'snake', delay: 110,
+  desc: 'Eat the red squares and avoid the walls and your own tail. Use the arrow keys or WASD, or swipe on the board.',
+  best() { try { return +localStorage.snakeBest || 0; } catch (e) { return 0; } },  // saved high score some browsers block storage
+  reset() {
+    this.s = [[10, 10], [9, 10], [8, 10]];                 // body as [x,y] pairs head first
+    this.d = this.q = [1, 0];                              // d = current direction q = queued direction
+    this.score = 0; this.over = false; this.f = this.food();
+  },
+  food() {                                                 // a random square the snake is not on
+    let f;
+    do f = [Math.random() * M | 0, Math.random() * M | 0];
+    while (this.s.some(c => c[0] == f[0] && c[1] == f[1]));
+    return f;
+  },
+  turn(dx, dy) { if (dx + this.d[0] || dy + this.d[1]) this.q = [dx, dy]; },  // ignore a direct reversal applied on the next step
+  step() {
+    this.d = this.q;                                       // apply the queued turn one per tick
+    const h = [this.s[0][0] + this.d[0], this.s[0][1] + this.d[1]];  // where the new head goes
+    if (h[0] < 0 || h[1] < 0 || h[0] >= M || h[1] >= M || this.s.some(c => c[0] == h[0] && c[1] == h[1])) {  // hit a wall or itself
+      this.over = true; setRun(false);
+      try { if (this.score > this.best()) localStorage.snakeBest = this.score; } catch (e) {}  // save the high score
+      return;
+    }
+    this.s.unshift(h);                                     // add the new head
+    if (h[0] == this.f[0] && h[1] == this.f[1]) { this.score++; this.f = this.food(); }  // ate food grow and place new food
+    else this.s.pop();                                     // otherwise drop the tail, so it moves instead of growing
+  },
+  draw() {
+    g.fillStyle = '#fff'; g.fillRect(0, 0, 480, 480);
+    g.fillStyle = RED; g.fillRect(this.f[0] * K + 2, this.f[1] * K + 2, K - 4, K - 4);  // food
+    this.s.forEach((c, i) => { g.fillStyle = i ? BLUE : INK; g.fillRect(c[0] * K + 1, c[1] * K + 1, K - 2, K - 2); });  // head dark body blue
+    $('#stat').textContent = (this.over ? 'Game over. ' : '') + `Score ${this.score}, best ${Math.max(this.best(), this.score)}`;
+  },
+  down(e) { this.p = [e.clientX, e.clientY]; },            // swipe starts
+  up(e) {                                                  // swipe ends: turn in the dominant direction
+    const dx = e.clientX - this.p[0], dy = e.clientY - this.p[1];
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;  // too short to count as a swipe
+    Math.abs(dx) > Math.abs(dy) ? this.turn(Math.sign(dx), 0) : this.turn(0, Math.sign(dy));
+    start();
+  }
+};
+
+// SWITCHING GAMES AND INPUT 
+function pick(m) {                                         // switch to game m
+  cur = m; setRun(false); m.reset();
+  if (m === life) m.gun();                                 // Life starts with a glider gun on the board
+  delay = m.delay; $('#speed').value = delay;
+  $('#desc').textContent = m.desc;
+  document.querySelectorAll('[data-m]').forEach(b => b.hidden = !b.dataset.m.split(' ').includes(m.name));  // show only buttons whose data-m lists this game
+  document.querySelectorAll('[data-g]').forEach(b => b.setAttribute('aria-pressed', b.dataset.g == m.name));  // highlight the active tab
+  cur.draw();
+}
+document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => pick({ life, mines, pong, snake }[b.dataset.g]));  // game tabs
+$('#play').onclick = () => run ? setRun(false) : start();  // play / pause
+$('#step').onclick = () => { cur.step(); cur.draw(); };    // advance one step game oflife only
+$('#rand').onclick = () => { life.rand(); life.draw(); };  // random board
+$('#gun').onclick = () => { life.gun(); life.draw(); };    // glider gun preset
+$('#reset').onclick = () => { cur.reset(); setRun(false); cur.draw(); };  // reset the current game
+$('#speed').oninput = e => delay = +e.target.value;        // speed slider changes the delay
+
+cv.onpointerdown = e => { cv.setPointerCapture(e.pointerId); cur.down && cur.down(e); };  // pass input to the game if it handles it
+cv.onpointermove = e => cur.move && cur.move(e);
+cv.onpointerup = e => cur.up && cur.up(e);
+cv.oncontextmenu = e => e.preventDefault();                // stops the right click menu minesweeper flags
+
+const D = { ArrowUp: [0, -1], w: [0, -1], ArrowDown: [0, 1], s: [0, 1], ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0] };  // key -> direction
+const key = e => e.key.length == 1 ? e.key.toLowerCase() : e.key;  // lowercase letters so capslock doesnt matter
+addEventListener('keydown', e => {
+  const k = key(e);
+  if (cur === snake && D[k]) { e.preventDefault(); snake.turn(...D[k]); if (!run) start(); }  // snake steer and start on first key
+  else if (cur === pong && /^(ArrowUp|ArrowDown|w|s)$/.test(k)) { e.preventDefault(); held[k] = 1; }  // pong remember the key is down
+});
+addEventListener('keyup', e => delete held[key(e)]);       // key released
+
+pick(life);                                                // must run before the loop or cur is undefined and the page crashes
+(function tick() {                                         // main loop like Update() 
+  if (run) cur.step();                                     // update the game only if not paused
+  cur.draw();                                              // always redraw
+  setTimeout(tick, delay);
+})();
+</script>
+<script src="../conways-game-of-life.js"></script>
+</body>
+</html>
